@@ -1,0 +1,202 @@
+import React from "react";
+import { styled, alpha, useTheme } from "@mui/material/styles";
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Chip,
+  Box,
+  Button,
+  Link,
+} from "@mui/material";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import { DetailItem } from "../types";
+
+// Function to get color based on tag content
+const getTagColor = (tag: string, theme: any) => {
+  const tagColors: { [key: string]: string } = {
+    // Literary movements TODO add more colors
+    Modernism: theme.palette.info.main, // Blue
+    "Southern Gothic": theme.palette.secondary.main, // Purple
+    "Lost Generation": theme.palette.warning.main, // Orange
+    "Jazz Age": theme.palette.error.main, // Pink
+
+    // Genres
+    "American Literature": theme.palette.success.main, // Green
+    "Coming of Age": theme.palette.info.light, // Cyan
+
+    // Themes
+    "Social Commentary": theme.palette.error.main, // Red
+    "Civil Rights": theme.palette.warning.dark, // Deep Orange
+    "Personal Development": theme.palette.success.light, // Teal
+
+    // Author types
+    "American Author": theme.palette.secondary.dark, // Deep Purple
+  };
+
+  // Default color if no specific match
+  return tagColors[tag] || theme.palette.grey[500]; // Grey as default
+};
+
+const DetailCard = styled(Card)(({ theme }) => ({
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: theme.shadows[2],
+  borderRadius: theme.shape.borderRadius * 2,
+  overflow: "hidden",
+  transition: theme.transitions.create(["box-shadow", "transform"], {
+    duration: theme.transitions.duration.shorter,
+  }),
+  "&:hover": {
+    boxShadow: theme.shadows[4],
+    transform: "translateY(-2px)",
+  },
+}));
+
+const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
+  height: 300,
+  backgroundSize: "contain",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  backgroundColor: alpha(theme.palette.primary.main, 0.05),
+}));
+
+const TagContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexWrap: "wrap",
+  gap: theme.spacing(1),
+  marginTop: theme.spacing(2),
+}));
+
+const StyledChip = styled(Chip)<{ tagcolor: string }>(
+  ({ theme, tagcolor }) => ({
+    "&.MuiChip-root": {
+      backgroundColor: alpha(tagcolor, 0.1),
+      color: tagcolor,
+      borderColor: alpha(tagcolor, 0.3),
+      "&:hover": {
+        backgroundColor: alpha(tagcolor, 0.2),
+      },
+    },
+  })
+);
+
+const StyledCardContent = styled(CardContent)(({ theme }) => ({
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  padding: theme.spacing(3),
+  "& .MuiTypography-h5": {
+    color: theme.palette.text.primary,
+    fontWeight: theme.typography.fontWeightBold,
+  },
+  "& .MuiTypography-subtitle1": {
+    color: theme.palette.primary.main,
+    marginBottom: theme.spacing(2),
+  },
+  "& .MuiTypography-body1": {
+    color: theme.palette.text.primary,
+    lineHeight: 1.6,
+  },
+}));
+
+const EmptyStateContainer = styled(Box)(({ theme }) => ({
+  height: "100%",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: theme.spacing(3),
+  backgroundColor: alpha(theme.palette.primary.main, 0.05),
+  borderRadius: theme.shape.borderRadius * 2,
+  color: theme.palette.text.primary,
+}));
+
+const LinkButton = styled(Link)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  alignSelf: "flex-start",
+  display: "inline-flex",
+  alignItems: "center",
+  textDecoration: "none",
+  "&:hover": {
+    textDecoration: "none",
+  },
+}));
+
+interface DetailPaneProps {
+  selectedItem: DetailItem | null;
+}
+
+const DetailPane: React.FC<DetailPaneProps> = ({ selectedItem }) => {
+  const theme = useTheme();
+
+  if (!selectedItem) {
+    return (
+      <DetailCard>
+        <EmptyStateContainer>
+          <Typography variant="h6" color="textSecondary">
+            Select an item to view details
+          </Typography>
+        </EmptyStateContainer>
+      </DetailCard>
+    );
+  }
+
+  return (
+    <DetailCard>
+      {selectedItem.image && (
+        <StyledCardMedia
+          image={selectedItem.image}
+          title={selectedItem.label}
+        />
+      )}
+      <StyledCardContent>
+        <Typography variant="h5" component="h2" gutterBottom>
+          {selectedItem.label}
+        </Typography>
+        <Typography variant="subtitle1" color="textSecondary" gutterBottom>
+          {selectedItem.type.charAt(0).toUpperCase() +
+            selectedItem.type.slice(1)}
+          {selectedItem.year && ` • ${selectedItem.year}`}
+        </Typography>
+        {selectedItem.description && (
+          <Typography variant="body1" paragraph>
+            {selectedItem.description}
+          </Typography>
+        )}
+        {selectedItem.tags && selectedItem.tags.length > 0 && (
+          <TagContainer>
+            {selectedItem.tags.map((tag) => (
+              <StyledChip
+                key={tag}
+                label={tag}
+                size="small"
+                variant="outlined"
+                tagcolor={getTagColor(tag, theme)}
+              />
+            ))}
+          </TagContainer>
+        )}
+        {selectedItem.externalLink && (
+          <LinkButton
+            href={selectedItem.externalLink}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<OpenInNewIcon />}
+            >
+              Learn More
+            </Button>
+          </LinkButton>
+        )}
+      </StyledCardContent>
+    </DetailCard>
+  );
+};
+
+export default DetailPane;

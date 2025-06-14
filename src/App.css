@@ -1,0 +1,195 @@
+:root {
+  --dark-bg: #121212;
+  --dark-surface: #1e1e1e;
+  --dark-border: #333;
+  --dark-text: #fff;
+  --light-bg: #f5f5f5;
+  --light-surface: #fff;
+  --light-border: #ddd;
+  --light-text: #333;
+}
+
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s ease;
+}
+
+.app.dark-theme {
+  background-color: var(--dark-bg);
+  color: var(--dark-text);
+}
+
+.app.light-theme {
+  background-color: var(--light-bg);
+  color: var(--light-text);
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--dark-border);
+  height: 48px;
+}
+
+.app-header h1 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.app.dark-theme .app-header {
+  border-color: var(--dark-border);
+}
+
+.app.light-theme .app-header {
+  border-color: var(--light-border);
+}
+
+.theme-toggle {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  border: 1px solid var(--dark-border);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+}
+
+.app.dark-theme .theme-toggle {
+  border-color: var(--dark-border);
+}
+
+.app.light-theme .theme-toggle {
+  border-color: var(--light-border);
+}
+
+.theme-toggle:hover {
+  opacity: 0.8;
+}
+
+.app-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr auto;
+  gap: 1rem;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.network-container,
+.detail-container,
+.timeline-container {
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.app.dark-theme .network-container,
+.app.dark-theme .detail-container,
+.app.dark-theme .timeline-container {
+  background-color: var(--dark-surface);
+  border: 1px solid var(--dark-border);
+}
+
+.app.light-theme .network-container,
+.app.light-theme .detail-container,
+.app.light-theme .timeline-container {
+  background-color: var(--light-surface);
+  border: 1px solid var(--light-border);
+}
+
+.timeline-container {
+  grid-column: 1 / span 2;
+  height: 150px;
+}
+
+/* Timeline specific styles */
+.timeline-axis {
+  stroke: currentColor;
+  stroke-width: 1;
+}
+
+.timeline-axis text {
+  fill: currentColor;
+  font-size: 12px;
+}
+
+.timeline-dot {
+  cursor: pointer;
+  transition: r 0.2s ease;
+}
+
+.timeline-dot:hover {
+  r: 6;
+}
+
+.timeline-label {
+  fill: currentColor;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+
+@media (max-width: 1024px) {
+  .app-content {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .network-container {
+    grid-row: 1;
+    height: 300px;
+  }
+
+  .detail-container {
+    grid-row: 2;
+    height: auto;
+    min-height: 200px;
+  }
+
+  .timeline-container {
+    grid-row: 3;
+    grid-column: 1;
+    height: 200px;
+  }
+
+  .app-header {
+    padding: 0.25rem 0.75rem;
+    height: 40px;
+  }
+
+  .app-header h1 {
+    font-size: 1.1rem;
+  }
+
+  .theme-toggle {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .app-content {
+    padding: 0.25rem;
+    gap: 0.25rem;
+  }
+
+  .network-container {
+    height: 250px;
+  }
+
+  .detail-container {
+    min-height: 180px;
+  }
+
+  .timeline-container {
+    height: 120px;
+  }
+} 
