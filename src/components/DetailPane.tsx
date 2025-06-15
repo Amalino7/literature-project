@@ -46,18 +46,16 @@ const TagContainer = styled(Box)(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
-const StyledChip = styled(Chip)<{ tagcolor: string }>(
-  ({ theme, tagcolor }) => ({
-    "&.MuiChip-root": {
-      backgroundColor: alpha(tagcolor, 0.1),
-      color: tagcolor,
-      borderColor: alpha(tagcolor, 0.3),
-      "&:hover": {
-        backgroundColor: alpha(tagcolor, 0.2),
-      },
+const StyledChip = styled(Chip)<{ tagcolor: string }>(({ tagcolor }) => ({
+  "&.MuiChip-root": {
+    backgroundColor: alpha(tagcolor, 0.1),
+    color: tagcolor,
+    borderColor: alpha(tagcolor, 0.3),
+    "&:hover": {
+      backgroundColor: alpha(tagcolor, 0.2),
     },
-  })
-);
+  },
+}));
 
 const StyledCardContent = styled(CardContent)(({ theme }) => ({
   flex: 1,
