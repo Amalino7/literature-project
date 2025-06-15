@@ -1,26 +1,13 @@
-import { useEffect, useRef } from "react";
 import * as d3 from "d3";
-import { Node, Edge } from "../types";
+import { useRef, useEffect } from "react";
+import {
+  LiteratureNetworkProps,
+  D3Node,
+  D3Link,
+  getColoring,
+} from "../../resources/LiteratureNetwork";
 
-interface LiteratureNetworkProps {
-  nodes: Node[];
-  edges: Edge[];
-  onNodeClick: (node: Node) => void;
-}
-
-interface D3Node extends d3.SimulationNodeDatum {
-  id: string;
-  name: string;
-  group: number;
-  originalNode: Node;
-}
-
-interface D3Link extends d3.SimulationLinkDatum<D3Node> {
-  value: number;
-  type: string;
-}
-
-const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
+export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
   nodes,
   edges,
   onNodeClick,
@@ -34,7 +21,7 @@ const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
     const d3Nodes: D3Node[] = nodes.map((node) => ({
       id: node.id,
       name: node.label,
-      group: node.type === "work" ? 1 : node.type === "author" ? 2 : 3,
+      group: node.type === "произведение" ? 1 : node.type === "автор" ? 2 : 3,
       originalNode: node,
     }));
 
@@ -72,15 +59,7 @@ const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
     const container = svg.append("g").attr("class", "zoom-container");
 
     // Create color scales
-    const nodeColors = d3
-      .scaleOrdinal<string>()
-      .domain(["work", "author", "theme"])
-      .range(["#90caf9", "#f48fb1", "#a5d6a7"]);
-
-    const linkColors = d3
-      .scaleOrdinal<string>()
-      .domain(["authored", "themed", "influenced"])
-      .range(["#90caf9", "#a5d6a7", "#f48fb1"]);
+    const { linkColors, nodeColors } = getColoring();
 
     // Create the force simulation
     const simulation = d3
@@ -90,18 +69,17 @@ const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
         d3
           .forceLink<D3Node, D3Link>(d3Links)
           .id((d) => d.id)
-          .distance(150)
-          .strength(0.1)
+          .distance(60) // Obsidian-like: shorter links
+          .strength(0.2) // Slightly stronger links
       )
-      .force("charge", d3.forceManyBody().strength(-300))
-      .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("collision", d3.forceCollide().radius(30))
-      .force("x", d3.forceX(width / 2).strength(0.05))
-      .force("y", d3.forceY(height / 2).strength(0.05))
-      .alphaDecay(0.01)
-      .velocityDecay(0.4);
+      .force("charge", d3.forceManyBody().strength(-100)) // Stronger repulsion
+      .force("center", d3.forceCenter(width / 2, height / 2).strength(0.01)) // Weaker centering
+      .force("collision", d3.forceCollide().radius(18)) // Smaller collision radius
+      .force("x", d3.forceX(width / 2).strength(0.01)) // Weaker axis forces
+      .force("y", d3.forceY(height / 2).strength(0.01))
+      .alphaDecay(0.005) // Slower decay for more "floaty" motion
+      .velocityDecay(0.15);
 
-    // Create the links
     const link = container
       .append("g")
       .selectAll("line")
@@ -110,7 +88,27 @@ const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
       .attr("stroke", (d) => linkColors(d.type))
       .attr("stroke-opacity", 0.6)
       .attr("stroke-width", 2)
-      .attr("stroke-dasharray", (d) => (d.type === "influenced" ? "5,5" : "0"));
+      .attr("stroke-dasharray", (d) => (d.type === "повлиян" ? "5,5" : "0"))
+      .on("mouseover", function (event, d) {
+        d3.select(this)
+          .attr("stroke", linkColors(d.type))
+          .attr("stroke-opacity", 1)
+          .attr("stroke-width", 4);
+        linkLabels
+          .filter((l) => l === d)
+          .attr("display", "block")
+          .attr("font-weight", "bold");
+      })
+      .on("mouseout", function (event, d) {
+        d3.select(this)
+          .attr("stroke", linkColors(d.type))
+          .attr("stroke-opacity", 0.6)
+          .attr("stroke-width", 2);
+        linkLabels
+          .filter((l) => l === d)
+          .attr("display", "none")
+          .attr("font-weight", "normal");
+      });
 
     // Create the nodes
     const node = container
@@ -148,7 +146,10 @@ const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
       .text((d) => d.type)
       .attr("font-size", 10)
       .attr("fill", "#999")
+      .attr("display", "none") // Hide by default
       .style("pointer-events", "none");
+
+    // Create the links
 
     // Update positions on each tick
     simulation.on("tick", () => {
@@ -228,5 +229,3 @@ const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
     </div>
   );
 };
-
-export default LiteratureNetwork;

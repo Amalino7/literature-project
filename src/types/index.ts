@@ -1,8 +1,10 @@
 export interface Node {
   id: string;
   label: string;
-  type: "work" | "author" | "theme";
+  type: "произведение" | "автор" | "тема";
   year?: number;
+  // birthYear?: number;
+  // deathYear?: number;
   image?: string;
   description?: string;
   tags?: string[];
@@ -17,7 +19,7 @@ export interface SimulationNode extends Node, d3.SimulationNodeDatum {
 export interface Edge {
   source: string;
   target: string;
-  type: "influenced" | "themed" | "authored";
+  type: "повлиян" | "тема" | "автор на";
 }
 
 export interface TimelineItem extends Node {

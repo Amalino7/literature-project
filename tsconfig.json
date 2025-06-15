@@ -25,6 +25,6 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"],
+  "include": ["src", "resources/getTagColor.tsx", "resources/LiteratureNetwork.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 } 

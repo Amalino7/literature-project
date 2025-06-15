@@ -195,7 +195,11 @@ class D3Timeline {
     const startYear = Math.ceil(yearRange[0]);
     const endYear = Math.floor(yearRange[1]);
 
-    // Create year markers with dynamic interval
+    const timelineY = height - margin.bottom;
+    const yearMarkerLineY1 = timelineY;
+    const yearMarkerLineY2 = timelineY + 8; // BELOW the timeline
+    const yearLabelY = timelineY + 18; // BELOW the marker line
+
     for (
       let year = startYear;
       year <= endYear;
@@ -203,28 +207,28 @@ class D3Timeline {
     ) {
       const x = currentXScale(year);
 
-      // Add year marker line
+      // Add year marker line BELOW the timeline
       this.zoomG
         .append("line")
         .attr("class", "year-marker")
         .attr("x1", x)
-        .attr("y1", height - margin.bottom)
+        .attr("y1", yearMarkerLineY1)
         .attr("x2", x)
-        .attr("y2", height - margin.bottom - 8)
+        .attr("y2", yearMarkerLineY2)
         .attr("stroke", "currentColor")
         .attr("stroke-width", 1);
 
-      // Add year label with fixed position
+      // Add year label BELOW the marker line
       this.zoomG
         .append("text")
         .attr("class", "year-label")
         .attr("x", x)
-        .attr("y", height - margin.bottom - 12)
+        .attr("y", yearLabelY)
         .attr("text-anchor", "middle")
         .attr("font-size", "14px")
         .attr("font-weight", "500")
         .attr("fill", "currentColor")
-        .attr("dominant-baseline", "middle") // Ensure consistent vertical alignment
+        .attr("dominant-baseline", "middle")
         .text(year.toString());
     }
 
