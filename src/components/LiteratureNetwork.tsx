@@ -89,7 +89,7 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
       .attr("stroke-opacity", 0.6)
       .attr("stroke-width", 2)
       .attr("stroke-dasharray", (d) => (d.type === "повлиян" ? "5,5" : "0"))
-      .on("mouseover", function (event, d) {
+      .on("mouseover", function (_, d) {
         d3.select(this)
           .attr("stroke", linkColors(d.type))
           .attr("stroke-opacity", 1)
@@ -99,7 +99,7 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
           .attr("display", "block")
           .attr("font-weight", "bold");
       })
-      .on("mouseout", function (event, d) {
+      .on("mouseout", function (_, d) {
         d3.select(this)
           .attr("stroke", linkColors(d.type))
           .attr("stroke-opacity", 0.6)
@@ -121,7 +121,7 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
       .attr("stroke", "#fff")
       .attr("stroke-width", 1.5)
       .style("cursor", "pointer")
-      .on("click", (event, d) => onNodeClick(d.originalNode))
+      .on("click", (_, d) => onNodeClick(d.originalNode))
       .call(drag(simulation));
 
     // Add labels to nodes

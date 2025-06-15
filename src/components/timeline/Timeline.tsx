@@ -1,7 +1,7 @@
 import * as d3 from "d3";
-import { zoom, zoomIdentity } from "d3-zoom";
+import { zoomIdentity } from "d3-zoom";
 
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, { useRef, useEffect } from "react";
 import { TimelineContainer, StyledSvg, Tooltip } from "./styles"; // Adjust the path as needed
 import { Node } from "../../types";
 let numberOfLabels = window.matchMedia("(max-width: 1000px)").matches ? 10 : 20;
@@ -86,7 +86,7 @@ class D3Timeline {
 
   private resize(): void {
     const oldWidth = this.width;
-    const oldHeight = this.height;
+    // const oldHeight = this.height;
 
     this.width = this.svg.node()?.clientWidth || 0;
     this.height = this.svg.node()?.clientHeight || 0;
@@ -141,6 +141,7 @@ class D3Timeline {
 
     const { width, height, margin } = this;
 
+    console.log(height);
     // Ensure there's data to process
     if (this.data.length === 0) {
       this.svg.selectAll("*").remove();
@@ -170,7 +171,7 @@ class D3Timeline {
     const { height, margin, verticalOffsetStep } = this;
 
     // Calculate vertical positions for dots and labels
-    const getDotY = (d: Node, i: number) => {
+    const getDotY = (_: Node, i: number) => {
       const baseLine = height - margin.bottom;
       return baseLine - (i % 3) * verticalOffsetStep;
     };

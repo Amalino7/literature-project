@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import DetailPane from "./components/DetailPane";
 import Timeline from "./components/timeline/Timeline";
 import { LiteratureNetwork } from "./components/LiteratureNetwork";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import { Node, Edge, DetailItem } from "./types";
+import { Node, DetailItem } from "./types";
 import "./App.css";
 
 // Sample data - replace with your actual data
