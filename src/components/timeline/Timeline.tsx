@@ -4,6 +4,7 @@ import { zoom, zoomIdentity } from "d3-zoom";
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { TimelineContainer, StyledSvg, Tooltip } from "./styles"; // Adjust the path as needed
 import { Node } from "../../types";
+let numberOfLabels = window.matchMedia("(max-width: 1000px)").matches ? 10 : 20;
 
 // Define a type for the D3 Timeline class for better type safety
 type OnNodeSelectedCallback = (node: Node) => void;
@@ -189,7 +190,10 @@ class D3Timeline {
     // Calculate year label interval based on zoom level
     const yearRange = currentXScale.domain();
     const visibleYears = yearRange[1] - yearRange[0];
-    this.yearLabelInterval = Math.max(1, Math.ceil(visibleYears / 20)); // Show max 20 labels
+    this.yearLabelInterval = Math.max(
+      1,
+      Math.ceil(visibleYears / numberOfLabels)
+    ); // Show max 20 labels
 
     // Add year markers
     const startYear = Math.ceil(yearRange[0]);
@@ -201,8 +205,10 @@ class D3Timeline {
     const yearLabelY = timelineY + 18; // BELOW the marker line
 
     for (
-      let year = startYear;
-      year <= endYear;
+      let year =
+        Math.round(startYear / this.yearLabelInterval) * this.yearLabelInterval;
+      year <=
+      Math.round(endYear / this.yearLabelInterval) * this.yearLabelInterval;
       year += this.yearLabelInterval
     ) {
       const x = currentXScale(year);
