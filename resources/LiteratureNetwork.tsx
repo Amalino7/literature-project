@@ -22,12 +22,12 @@ export interface D3Link extends d3.SimulationLinkDatum<D3Node> {
 export function getColoring() {
   const nodeColors = d3
     .scaleOrdinal<string>()
-    .domain(["произведение", "автор", "тема"])
-    .range(["#90caf9", "#f48fb1", "#a5d6a7"]);
+    .domain(["произведение", "автор", "тема", "епоха"])
+    .range(["#90caf9", "#f48fb1", "#a5d6a7", "rgb(197, 203, 36) "]);
 
   const linkColors = d3
     .scaleOrdinal<string>()
-    .domain(["автор на", "тема", "повлиян"])
-    .range(["#90caf9", "#a5d6a7", "#f48fb1"]);
+    .domain(["повлиян", "повлиян от", "автор на", "тема"])
+    .range(["#f48fb1", "#f48fb1", "#90caf9", "#a5d6a7"]);
   return { linkColors, nodeColors };
 }

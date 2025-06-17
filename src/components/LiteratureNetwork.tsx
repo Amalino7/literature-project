@@ -72,13 +72,13 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
           .distance(60) // Obsidian-like: shorter links
           .strength(0.2) // Slightly stronger links
       )
-      .force("charge", d3.forceManyBody().strength(-100)) // Stronger repulsion
+      .force("charge", d3.forceManyBody().strength(-250)) // Stronger repulsion
       .force("center", d3.forceCenter(width / 2, height / 2).strength(0.01)) // Weaker centering
-      .force("collision", d3.forceCollide().radius(18)) // Smaller collision radius
-      .force("x", d3.forceX(width / 2).strength(0.01)) // Weaker axis forces
-      .force("y", d3.forceY(height / 2).strength(0.01))
-      .alphaDecay(0.005) // Slower decay for more "floaty" motion
-      .velocityDecay(0.15);
+      .force("collision", d3.forceCollide().radius(22)) // Smaller collision radius
+      .force("x", d3.forceX(width / 2).strength(0.001)) // Weaker axis forces
+      .force("y", d3.forceY(height / 2).strength(0.001))
+      .alphaDecay(0.002) // Slower decay for more "floaty" motion
+      .velocityDecay(0.12);
 
     const link = container
       .append("g")
@@ -88,7 +88,9 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
       .attr("stroke", (d) => linkColors(d.type))
       .attr("stroke-opacity", 0.6)
       .attr("stroke-width", 2)
-      .attr("stroke-dasharray", (d) => (d.type === "повлиян" ? "5,5" : "0"))
+      .attr("stroke-dasharray", (d) =>
+        d.type !== "автор на" && d.type !== "тема" ? "5,5" : "0"
+      )
       .on("mouseover", function (_, d) {
         d3.select(this)
           .attr("stroke", linkColors(d.type))

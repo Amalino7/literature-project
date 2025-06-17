@@ -21,7 +21,7 @@ const DetailCard = styled(Card)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   boxShadow: theme.shadows[2],
   borderRadius: theme.shape.borderRadius * 2,
-  overflow: "hidden",
+  overflow: "hidden", // Keep this to ensure children with border-radius clip correctly
   transition: theme.transitions.create(["box-shadow", "transform"], {
     duration: theme.transitions.duration.shorter,
   }),
@@ -31,12 +31,16 @@ const DetailCard = styled(Card)(({ theme }) => ({
   },
 }));
 
+// No changes needed here, but its styling is why we change the prop in the component
 const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
   height: 300,
   backgroundSize: "contain",
   backgroundPosition: "center",
   backgroundRepeat: "no-repeat",
   backgroundColor: alpha(theme.palette.primary.main, 0.05),
+  // Add margin for spacing
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(1),
 }));
 
 const TagContainer = styled(Box)(({ theme }) => ({
@@ -58,10 +62,12 @@ const StyledChip = styled(Chip)<{ tagcolor: string }>(({ tagcolor }) => ({
 }));
 
 const StyledCardContent = styled(CardContent)(({ theme }) => ({
-  flex: 1,
+  flex: "1 1 auto",
   display: "flex",
   flexDirection: "column",
   padding: theme.spacing(3),
+  // CHANGED: Added overflowY to make this specific area scrollable
+  overflowY: "auto",
   "& .MuiTypography-h5": {
     color: theme.palette.text.primary,
     fontWeight: theme.typography.fontWeightBold,
@@ -88,7 +94,8 @@ const EmptyStateContainer = styled(Box)(({ theme }) => ({
 }));
 
 const LinkButton = styled(Link)(({ theme }) => ({
-  marginTop: theme.spacing(2),
+  marginTop: "auto", // Pushes the button to the bottom
+  paddingTop: theme.spacing(2), // Add some space above the button
   alignSelf: "flex-start",
   display: "inline-flex",
   alignItems: "center",
@@ -119,12 +126,6 @@ const DetailPane: React.FC<DetailPaneProps> = ({ selectedItem }) => {
 
   return (
     <DetailCard>
-      {selectedItem.image && (
-        <StyledCardMedia
-          image={selectedItem.image}
-          title={selectedItem.label}
-        />
-      )}
       <StyledCardContent>
         <Typography variant="h5" component="h2" gutterBottom>
           {selectedItem.label}
@@ -152,6 +153,13 @@ const DetailPane: React.FC<DetailPaneProps> = ({ selectedItem }) => {
             ))}
           </TagContainer>
         )}
+        {/* {selectedItem.image && (
+          // CHANGED: Use the `image` prop instead of `src` for background images
+          <StyledCardMedia
+            image={selectedItem.image}
+            title={selectedItem.label}
+          />
+        )}
         {selectedItem.externalLink && (
           <LinkButton
             href={selectedItem.externalLink}
@@ -166,7 +174,7 @@ const DetailPane: React.FC<DetailPaneProps> = ({ selectedItem }) => {
               Learn More
             </Button>
           </LinkButton>
-        )}
+        )} */}
       </StyledCardContent>
     </DetailCard>
   );
