@@ -8,7 +8,7 @@ import {
   Chip,
   Box,
   // Button,
-  Link,
+  // Link,
 } from "@mui/material";
 // import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { DetailItem } from "../types";
