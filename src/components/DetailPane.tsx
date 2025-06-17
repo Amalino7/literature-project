@@ -3,14 +3,14 @@ import { styled, alpha, useTheme } from "@mui/material/styles";
 import {
   Card,
   CardContent,
-  CardMedia,
+  // CardMedia,
   Typography,
   Chip,
   Box,
-  Button,
+  // Button,
   Link,
 } from "@mui/material";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+// import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { DetailItem } from "../types";
 import { getTagColor } from "../../resources/getTagColor";
 
@@ -32,16 +32,16 @@ const DetailCard = styled(Card)(({ theme }) => ({
 }));
 
 // No changes needed here, but its styling is why we change the prop in the component
-const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
-  height: 300,
-  backgroundSize: "contain",
-  backgroundPosition: "center",
-  backgroundRepeat: "no-repeat",
-  backgroundColor: alpha(theme.palette.primary.main, 0.05),
-  // Add margin for spacing
-  marginTop: theme.spacing(2),
-  marginBottom: theme.spacing(1),
-}));
+// const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
+//   height: 300,
+//   backgroundSize: "contain",
+//   backgroundPosition: "center",
+//   backgroundRepeat: "no-repeat",
+//   backgroundColor: alpha(theme.palette.primary.main, 0.05),
+//   // Add margin for spacing
+//   marginTop: theme.spacing(2),
+//   marginBottom: theme.spacing(1),
+// }));
 
 const TagContainer = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -93,17 +93,17 @@ const EmptyStateContainer = styled(Box)(({ theme }) => ({
   color: theme.palette.text.primary,
 }));
 
-const LinkButton = styled(Link)(({ theme }) => ({
-  marginTop: "auto", // Pushes the button to the bottom
-  paddingTop: theme.spacing(2), // Add some space above the button
-  alignSelf: "flex-start",
-  display: "inline-flex",
-  alignItems: "center",
-  textDecoration: "none",
-  "&:hover": {
-    textDecoration: "none",
-  },
-}));
+// const LinkButton = styled(Link)(({ theme }) => ({
+//   marginTop: "auto", // Pushes the button to the bottom
+//   paddingTop: theme.spacing(2), // Add some space above the button
+//   alignSelf: "flex-start",
+//   display: "inline-flex",
+//   alignItems: "center",
+//   textDecoration: "none",
+//   "&:hover": {
+//     textDecoration: "none",
+//   },
+// }));
 
 interface DetailPaneProps {
   selectedItem: DetailItem | null;
