@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react"; // Import useState
 import {
   LiteratureNetworkProps,
   D3Node,
@@ -13,11 +13,50 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
   onNodeClick,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  // Use a state to keep track of the currently selected node
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+
+  // useRef to store D3 selections and simulation outside of the render cycle
+  // This prevents D3 elements from being re-created unnecessarily
+  const d3Elements = useRef<{
+    simulation?: d3.Simulation<D3Node, D3Link>;
+    link?: d3.Selection<SVGLineElement, D3Link, SVGGElement, unknown>;
+    node?: d3.Selection<SVGCircleElement, D3Node, any, any>;
+    labels?: d3.Selection<SVGTextElement, D3Node, any, any>;
+    linkLabels?: d3.Selection<SVGTextElement, D3Link, any, any>;
+    container?: d3.Selection<SVGGElement, unknown, any, any>;
+  }>({});
 
   useEffect(() => {
     if (!svgRef.current) return;
 
-    // Transform the data for D3
+    const currentSvg = d3.select(svgRef.current);
+
+    // Clear any existing SVG content only on initial mount or full data change
+    // This is important to prevent multiple graphs if useEffect runs excessively
+    currentSvg.selectAll("*").remove();
+
+    // Set up the SVG dimensions (initial)
+    const width = svgRef.current.clientWidth;
+    const height = svgRef.current.clientHeight;
+
+    currentSvg.attr("width", width).attr("height", height);
+
+    // Add zoom behavior
+    const zoom = d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 4])
+      .on("zoom", (event) => {
+        d3Elements.current.container?.attr("transform", event.transform);
+      });
+
+    currentSvg.call(zoom);
+
+    // Create a container for all elements that will be transformed by zoom
+    const container = currentSvg.append("g").attr("class", "zoom-container");
+    d3Elements.current.container = container; // Store the container
+
+    // Transform the data for D3 (this should only happen when nodes/edges actually change)
     const d3Nodes: D3Node[] = nodes.map((node) => ({
       id: node.id,
       name: node.label,
@@ -31,32 +70,6 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
       value: 1,
       type: edge.type,
     }));
-
-    // Clear any existing SVG content
-    d3.select(svgRef.current).selectAll("*").remove();
-
-    // Set up the SVG dimensions
-    const width = svgRef.current.clientWidth;
-    const height = svgRef.current.clientHeight;
-
-    // Create the SVG container
-    const svg = d3
-      .select(svgRef.current)
-      .attr("width", width)
-      .attr("height", height);
-
-    // Add zoom behavior
-    const zoom = d3
-      .zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.1, 4])
-      .on("zoom", (event) => {
-        svg.select("g.zoom-container").attr("transform", event.transform);
-      });
-
-    svg.call(zoom);
-
-    // Create a container for all elements that will be transformed by zoom
-    const container = svg.append("g").attr("class", "zoom-container");
 
     // Create color scales
     const { linkColors, nodeColors } = getColoring();
@@ -80,6 +93,9 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
       .alphaDecay(0.002) // Slower decay for more "floaty" motion
       .velocityDecay(0.12);
 
+    d3Elements.current.simulation = simulation; // Store the simulation
+
+    // Create the links
     const link = container
       .append("g")
       .selectAll("line")
@@ -96,8 +112,8 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
           .attr("stroke", linkColors(d.type))
           .attr("stroke-opacity", 1)
           .attr("stroke-width", 4);
-        linkLabels
-          .filter((l) => l === d)
+        d3Elements.current.linkLabels
+          ?.filter((l) => l === d)
           .attr("display", "block")
           .attr("font-weight", "bold");
       })
@@ -106,11 +122,18 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
           .attr("stroke", linkColors(d.type))
           .attr("stroke-opacity", 0.6)
           .attr("stroke-width", 2);
-        linkLabels
-          .filter((l) => l === d)
+        d3Elements.current.linkLabels
+          ?.filter((l) => l === d)
           .attr("display", "none")
           .attr("font-weight", "normal");
       });
+
+    d3Elements.current.link = link as d3.Selection<
+      SVGLineElement,
+      D3Link,
+      SVGGElement,
+      unknown
+    >; // Store the links
 
     // Create the nodes
     const node = container
@@ -123,13 +146,27 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
       .attr("stroke", "#fff")
       .attr("stroke-width", 1.5)
       .style("cursor", "pointer")
-      .on("click", (_, d) => onNodeClick(d.originalNode))
+      .on("click", (_, d) => {
+        // Update the React state for selected node
+        setSelectedNodeId(d.id);
+        // Call the prop function
+        onNodeClick(d.originalNode);
+        // You can also add D3-specific highlighting here immediately
+        d3Elements.current.node?.attr("stroke", (nodeD) =>
+          nodeD.id === d.id ? "gold" : "#fff"
+        );
+        d3Elements.current.node?.attr("stroke-width", (nodeD) =>
+          nodeD.id === d.id ? 3 : 1.5
+        );
+      })
       .call(drag(simulation));
+
+    d3Elements.current.node = node; // Store the nodes
 
     // Add labels to nodes
     const labels = container
       .append("g")
-      .selectAll("text")
+      .selectAll<SVGTextElement, D3Node>("text")
       .data(d3Nodes)
       .join("text")
       .text((d) => d.name)
@@ -138,6 +175,13 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
       .attr("dy", 4)
       .attr("fill", (d) => nodeColors(d.originalNode.type))
       .style("pointer-events", "none");
+
+    d3Elements.current.labels = labels as d3.Selection<
+      SVGTextElement,
+      D3Node,
+      any,
+      any
+    >; // Store the labels
 
     // Add link labels
     const linkLabels = container
@@ -151,7 +195,12 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
       .attr("display", "none") // Hide by default
       .style("pointer-events", "none");
 
-    // Create the links
+    d3Elements.current.linkLabels = linkLabels as d3.Selection<
+      SVGTextElement,
+      D3Link,
+      SVGGElement,
+      unknown
+    >; // Store the link labels
 
     // Update positions on each tick
     simulation.on("tick", () => {
@@ -210,20 +259,39 @@ export const LiteratureNetwork: React.FC<LiteratureNetworkProps> = ({
 
     // Handle window resize
     const handleResize = () => {
-      const width = svgRef.current?.clientWidth || 800;
-      const height = svgRef.current?.clientHeight || 600;
+      const currentWidth = svgRef.current?.clientWidth || 800;
+      const currentHeight = svgRef.current?.clientHeight || 600;
 
-      svg.attr("width", width).attr("height", height);
+      currentSvg.attr("width", currentWidth).attr("height", currentHeight);
 
-      simulation.force("center", d3.forceCenter(width / 2, height / 2));
-      simulation.force("x", d3.forceX(width / 2).strength(0.05));
-      simulation.force("y", d3.forceY(height / 2).strength(0.05));
+      simulation.force(
+        "center",
+        d3.forceCenter(currentWidth / 2, currentHeight / 2)
+      );
+      simulation.force("x", d3.forceX(currentWidth / 2).strength(0.05));
+      simulation.force("y", d3.forceY(currentHeight / 2).strength(0.05));
       simulation.alpha(0.3).restart();
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [nodes, edges, onNodeClick]);
+
+    // Cleanup function for useEffect
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      // Optional: Stop the simulation if the component unmounts
+      d3Elements.current.simulation?.stop();
+    };
+  }, [nodes, edges]); // Dependencies: Only re-run this effect if nodes or edges change significantly
+
+  // Secondary useEffect to handle selection highlighting
+  // This effect runs whenever selectedNodeId changes
+  useEffect(() => {
+    if (d3Elements.current.node) {
+      d3Elements.current.node
+        .attr("stroke", (d) => (d.id === selectedNodeId ? "gold" : "#fff"))
+        .attr("stroke-width", (d) => (d.id === selectedNodeId ? 3 : 1.5));
+    }
+  }, [selectedNodeId]); // Dependency: Re-run when selectedNodeId changes
 
   return (
     <div style={{ width: "100%", height: "100%" }}>
